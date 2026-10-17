@@ -1,0 +1,57 @@
+# OTP Service Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: otp-service
+
+  # H2 In-Memory Database (local development)
+  datasource:
+    url: jdbc:h2:mem:otpdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA / Hibernate
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  # H2 Console (accessible at http://localhost:8080/h2-console)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# OTP Configuration (externalized — change without recompilation)
+otp:
+  length: 6                        # Number of digits in OTP
+  expiry-seconds: 300              # OTP validity: 5 minutes
+  max-attempts: 5                  # Max wrong attempts before blocking
+  max-generation-per-window: 3     # Max OTPs per identifier in the rate-limit window
+  generation-window-seconds: 600   # Rate-limit window: 10 minutes
+  cleanup-cron: "0 */5 * * * *"   # Run cleanup every 5 minutes
+
+# Actuator (health checks)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    com.otpservice: DEBUG
+    org.springframework: INFO
